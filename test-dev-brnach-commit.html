@@ -1,0 +1,230 @@
+<app-navbar></app-navbar>
+<div *ngIf="isPaymentFailed" class="header-strip">
+  <span>
+    <img src="../../../assets/Icons/notitfication_icon/payment_failed.svg">
+  </span>
+  <span class="pl20">
+    Yout account is put on hold due to failure in payment. Contact team@codegrip.tech".
+  </span>
+</div>
+<div class="container-fluid " [ngClass]="isFreeTrialExpired ? 'fadded-screen-overlay' : ''">
+  <div class="dashboard-tile-box">
+    <div class="row">
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="repo-details-box">
+          <div style="display: flex;">
+            <img alt="" src="../../assets/Icons/related.svg" width="25" height="25">
+            <span class="pl20">Total Projects</span>
+          </div>
+          <div class="repo-details-box-number">
+            <span *ngIf="projectCount === undefined">0</span>
+            <span *ngIf="projectCount !== undefined">{{projectCount}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="repo-details-box">
+          <div style="display: flex;">
+            <img alt="" src="../../assets/Icons/sync.svg" width="25" height="25" />
+            <span class="pl20">Efforts</span>
+          </div>
+          <div class="repo-details-box-number">
+            <span *ngIf="totalEfforts === undefined">0</span>
+            <span *ngIf="totalEfforts !== undefined">{{totalEfforts}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-12">
+        <div class="repo-details-box">
+          <
+            <div class="col-md-3">
+              <div class="table-header-text">
+                All Repositories
+              </div>
+            </div>
+            <div class="col-md-1">
+              <div class="table-header-text">
+                Status
+              </div>
+            </div>
+            <div class="col-md-1 pl45">
+              <div class="table-header-text">
+                Issues
+              </div>
+            </div>
+            <div class="col-md-1">
+              <div class="table-header-text">
+                Security
+              </div>
+            </div>
+            <div class="col-md-1">
+              <div class="table-header-text">
+                Duplications
+              </div>
+            </div>
+            <div class="col-md-1">
+              <div class="table-header-text pl20">
+                Progress
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="projectlist !== null || (projectlist !== undefined && projectlist.length !== 0)">
+          <div *ngFor="let project of projectlist | fileFilter: {name: searchText};let index = index;">
+            <div class="custom-table-content-row">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="table-content-text" style="display: flex;">
+                    <div>
+                      <img *ngIf="project.provider === 'github'" height="20px" src="../../assets/Icons/github.svg" alt="" />
+                      <img *ngIf="project.provider === 'bitbucket'" height="20px" src="../../assets/Icons/bitbucket.svg"
+                        alt="" />
+                      <img *ngIf="project.provider === 'gitlab'" height="20px" src="../../assets/Icons/gitlab.svg" alt="" />
+                      <img *ngIf="project.provider === 'giturl'" height="20px" src="../../assets/Icons/giturl.svg" alt="" />
+                    </div>
+                    <div class="project-title ml15">
+                      <span *ngIf="project.isProjectDataAvailable" (click)="projectDashboard(project)">{{project.name}}</span>
+                      <span *ngIf="!project.isProjectDataAvailable" (click)="projectDataNotAvailable()">{{project.name}}</span>
+                      <br />
+                      <span *ngIf="project.qualityObj !== null" class="table-content-sub-text">
+                        {{project.qualityObj.branchKey}}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj === null" class="col-md-9">
+                  <div class="information-box" style="color: #4490B6;">
+                    Loading Review Results...
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="pass-status" *ngIf="project.qualityObj.alert_status === 'OK'">
+                    <img src="../../../assets/Icons/green-checked.svg" width="10px" alt="">
+                    <span class="ml5">Passed</span>
+                  </div>
+                  <div class="fail-status" *ngIf="project.qualityObj.alert_status === 'ERROR'">
+                    <img src="../../../assets/Icons/red-cross.svg" width="10px" alt="">
+                    <span class="ml5">Failed</span>
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="table-content-text pl35">
+                    {{project.qualityObj.totalIssues}}
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="table-content-text">
+                    {{project.qualityObj.vulnerabilities}}
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="table-content-text">
+                    {{project.qualityObj.duplicated_lines_density}}%
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="table-content-text pl20">
+                    <span>0</span>
+                    <br>
+                    <span class="table-content-sub-text">Fixed</span>
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div class="table-content-text">
+                    <span class="">{{project.qualityObj.newIssues}}</span>
+                    <br>
+                    <span class="table-content-sub-text">New Issues</span>
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-2">
+                  <div class="table-content-text">
+                    <div timeago [date]="project.qualityObj.changedAt" [live]="live"></div>
+                    <span class="table-content-sub-text">
+                      Last Analyzed
+                    </span>
+                  </div>
+                </div>
+                <div *ngIf="project.qualityObj !== null" class="col-md-1">
+                  <div id="projectPopoverActions" *ngIf="userRole === 'ROLE_ADMIN' && project.projectBranches[1]">
+                    <div class="pointer" style="float: right;padding: 5px 0px 15px 20px;" (click)="saveProjectId(project.id); currentProjectId = project.id; currentProjectName = project.name; branchList = project.projectBranches;selectedProjectIndex = index;"
+                      [popover]="popTemplate" placement="bottom" [outsideClick]="true" [popoverContext]="context">
+                      <img src="../../assets/Icons/group.svg" alt="" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="isLoaderStarted">
+          <div class="row mt50">
+            <div class="offset-3 col-md-6 col-sm-6 mt15 text-align-center">
+              <img src="../../../assets/Loader/loader.gif" alt="" />
+            </div>
+          </div>
+          <div class="row mt20">
+            <div class="offset-3 col-md-6 col-sm-6 mt15">
+              <div class="empty-data-text">Please wait...</div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="projectlist === null || (projectlist !== undefined && projectlist.length === 0)">
+          <div class="row mt30">
+            <div class="col-md-8 offset-md-2">
+              <div class="empty-data-text">
+                <img src="../../../assets/Images/empty-content.svg" alt="Data not available">
+              </div>
+            </div>
+          </div>
+          <div class="row mt10">
+            <div class="col-md-8 offset-md-2">
+              <div class="empty-data-text">No Results Found</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div bsModal #manageUserModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <app-manage-user [manageUserModal]="manageUserModal" [alreadyAddedUserList]="alreadyAddedUserList"></app-manage-user>
+</div>
+<div bsModal #trialExpiredModel="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <app-trial-expired [trialExpiredModel]="trialExpiredModel"></app-trial-expired>
+</div>
+<div bsModal #changeBranchModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <app-change-branch-popup (selectedBranchIndex)="getBranchKeyFromChild($event)" [changeBranchModal]="changeBranchModal"
+    [branchList]="branchList" [currentProjectName]="currentProjectName"></app-change-branch-popup>
+</div>
+<div bsModal #confirmDeleteProjectModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name1">
+  <app-delete-project-modal (projectListEvent)="getStartedProjectList(1)" [confirmDeleteProjectModal]="confirmDeleteProjectModal"
+    [currentProjectId]="currentProjectId" [currentProjectName]="currentProjectName"></app-delete-project-modal>
+</div>
+<ng-template #popTemplate>
+  <ul class="" style="list-style: none; padding: 0px;margin: 0px;">
+    <li *ngIf="userRole === 'ROLE_ADMIN'" class="sub-menu-item" (click)="manageUserModal.show();getUserListByProject();onClickPopoverClose()">
+      <span class="pr10">
+        <img src="../../assets/Icons/dropdown_user.svg" width="20" height="20" alt="" />
+      </span>
+      <span class="pl10">
+        Manage Users
+      </span>
+    </li>
+    <li class="sub-menu-item" (click)="changeBranchModal.show();onClickPopoverClose()">
+      <span class="pr10">
+        <img src="../../assets/Icons/dropdown_change.svg" width="20" height="20" alt="" />
+      </span>
+      <span class="pl10">
+        Change Branch
+      </span>
+    </li>
+    <li *ngIf="userRole === 'ROLE_ADMIN'" class="sub-menu-item" (click)="deleteProjectPopup()">
+      <span class="pr10">
+        <img src="../../assets/Icons/dropdown_delete.svg" width="20" height="20" alt="" />
+      </span>
+      <span class="pl10">
+        Delete
+      </span>
+    </li>
+  </ul>
+</ng-template>
